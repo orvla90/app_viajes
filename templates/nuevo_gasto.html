@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block nueva_persona %}
+<form action="" method="POST" novalidate>
+    {{ gasto.hidden_tag() }}
+    <p>
+        {{ gasto.nombre_gasto.label() }}
+        {{ gasto.nombre_gasto }}
+    </p>
+    <p>
+        {{ gasto.pagado.label() }}
+        {{ gasto.pagado }}
+    </p>
+    <p>
+        {{ gasto.persona_paga.label() }}
+        {{ gasto.persona_paga }}
+    </p>
+    <p>
+        {{ gasto.personas_participan.label() }}
+        {{ gasto.personas_participan }}
+    </p>
+    <p>
+        {{ gasto.submit }}
+    </p>
+</form>
+
+{% endblock %}
