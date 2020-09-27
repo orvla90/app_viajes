@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block nueva_persona %}
+<form action="" method="POST" novalidate>
+    {{ persona.hidden_tag() }}
+    <p>
+        {{ persona.nombre_persona.label() }}
+        {{ persona.nombre_persona }}
+    </p>
+    <p>
+        {{ persona.baremo_persona.label() }}
+        {{ persona.baremo_persona }}
+    </p>
+    <p>
+        {{ persona.submit }}
+    </p>
+</form>
+
+{% endblock %}

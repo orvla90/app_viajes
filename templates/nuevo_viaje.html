@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block nuevo_viaje %}
+<form action="" method="post" novalidate>
+    {{ viaje.hidden_tag() }}
+    <p>
+        {{ viaje.nombre_viaje.label() }}
+        {{ viaje.nombre_viaje }}
+    </p>
+    <p>
+        {{ viaje.submit }}
+    </p>
+</form>
+
+{% endblock %}

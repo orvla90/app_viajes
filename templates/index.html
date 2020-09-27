@@ -2,7 +2,14 @@
 {% block index %}
 
 <!-- lista de viajes ya creados -->
-
+{% for viaje in viajes %}
+<h1>{{ viajes[viaje].nombre }}</h1>
+{% for persona in viajes[viaje].personas %}
+<p>{{ persona }}</p>
+{% endfor %}
+{% for gasto in viajes[viaje].gastos %}
+<p>{{ gasto }}</p>
+{% endfor %}
 <!-- añadir nuevo viaje -->
-
+{% endfor %}
 {% endblock %}
