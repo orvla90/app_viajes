@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, url_for, request
 from datos import Datos_viajes, Datos_personas, Datos_gastos
 from app import app, db
 from forms import Viaje, Persona, Gasto
+from sqlalchemy import and_
+from utils import calcular_movimientos, calcular_lista_deudas
 
 @app.route('/')
 def index():
@@ -18,6 +20,14 @@ def nuevo_viaje():
         return(redirect(url_for('index')))
     return(render_template('nuevo_viaje.html', viaje=viaje))
 
+@app.route('/viaje/<int:id_viaje>')
+def web_viaje(id_viaje):
+    datos_personas = Datos_personas()
+    viaje = Datos_viajes().query.filter_by(id=id_viaje).first()
+    personas = datos_personas.query.filter_by(id_viaje=id_viaje).all()
+    gastos = Datos_gastos.query.filter_by(id_viaje=id_viaje).all()
+    return(render_template('viaje.html', personas=personas, viaje=viaje, gastos=gastos))
+
 @app.route('/nueva_persona/<int:id_viaje>', methods = ['GET', 'POST'])
 def nueva_persona(id_viaje):
     persona = Persona()
@@ -31,12 +41,42 @@ def nueva_persona(id_viaje):
 
 @app.route('/nuevo_gasto/<int:id_viaje>', methods = ['GET', 'POST'])
 def nuevo_gasto(id_viaje):
+    if len(Datos_personas().query.filter_by(id_viaje=id_viaje).all()) < 1:
+        return(redirect(url_for('web_viaje', id_viaje=id_viaje)))
     gasto = Gasto()
+    personas = Datos_personas().query.filter_by(id_viaje=id_viaje).all()
+    nombre_personas = [persona.nombre for persona in personas]
+    id_personas = [persona.id for persona in personas]
+    gasto.persona_paga.choices = nombre_personas
+    gasto.personas_participan.choices = zip(id_personas, personas)
     if gasto.validate_on_submit():
         nombre_gasto = gasto.nombre_gasto.data
         cantidad = gasto.pagado.data
         persona_paga = gasto.persona_paga.data
-        peronas_participan = gasto.personas_participan.data
-        viajes[id_viaje]['gastos'].append({'nombre':nombre_gasto, 'cantidad': cantidad, 'persona_paga':persona_paga, 'personas_participan':peronas_participan})
+        # añade el gasto que ha pagado la persona 
+        Datos_personas().query.filter(and_(Datos_personas.nombre==persona_paga, Datos_personas.id_viaje==id_viaje)).first().cantidad_pagada += cantidad
+        personas_participan = gasto.personas_participan.data
+        # añadir la cantida al coste del viaje a cada persona que participa
+        baremo_total = 0
+        for persona in personas_participan:
+            baremo_total += Datos_personas().query.filter_by(id=persona).first().baremo
+        for persona in personas_participan:
+            datos_persona = Datos_personas().query.filter_by(id=persona).first()
+            datos_persona.coste_viaje += cantidad/baremo_total * datos_persona.baremo
+        personas_participan = [str(persona) for persona in personas_participan]
+        nuevo_gasto = Datos_gastos(nombre=nombre_gasto, cantidad=cantidad, persona_paga=persona_paga, personas_participan=' '.join(personas_participan), id_viaje=id_viaje)
+        db.session.add(nuevo_gasto)
+        db.session.commit()
         return(redirect(url_for('index')))
-    return(render_template('nuevo_gasto.html', gasto=gasto))
+    return(render_template('nuevo_gasto.html', gasto=gasto, personas=personas))
+
+@app.route('/gastos/<int:id_viaje>')
+def web_gastos(id_viaje):
+    gastos = Datos_gastos().query.filter_by(id_viaje=id_viaje).all()
+    return(render_template('gastos.html', gastos=gastos))
+
+@app.route('/movimientos/<int:id_viaje>')
+def movimientos(id_viaje):
+    personas = Datos_personas().query.filter_by(id_viaje=id_viaje).all()
+    lista_deudas = calcular_lista_deudas(personas)
+    return(calcular_movimientos(lista_deudas))

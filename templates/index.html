@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
-{% block index %}
+{% block content %}
 
 <!-- lista de viajes ya creados -->
 {% for viaje in viajes %}
-<a href={{ url_for('nueva_persona', id_viaje=viaje.id) }} >
-    <h1>{{ viaje }}</h1>
-</a>
+
+<div class="contenedor_viajes">
+    <a href={{ url_for('web_viaje', id_viaje=viaje.id) }} >
+        <h2>{{ viaje }}</h2>
+    </a>
+</div>
+
 {% endfor %}
-<a href={{ url_for('nuevo_viaje') }}>Nuevo Viaje</a>
+
+<div>
+    <h6 class="url">
+        <a href={{ url_for('nuevo_viaje') }}>Nuevo Viaje</a>
+    </h6>
+</div>
+
 {% endblock %}

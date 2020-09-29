@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div>
+    <h2>{{ viaje }}</h2>
+    {% if personas|length > 0 %}
+    <div>
+        <div class="participantes">
+            <h3>Participantes</h3>
+            <h5>
+                <ul>
+                    {% for persona in personas %}
+                    <li>{{ persona }}</li>
+                    {% endfor %}
+                </ul>
+            </h5>
+        </div>
+        {% if gastos|length > 0 %}
+        <div class="gastos">
+            <h3>
+                Gastos
+            </h3>
+            <h5>
+                <ul>
+                    {% for gasto in gastos %}
+                    <li>{{ gasto }}</li>
+                    {% endfor %}
+                </ul>
+            </h5>
+        </div>
+        {% endif %}
+    {% else %}
+        <h3>No hay Participantes</h3>
+    {% endif %}
+    
+    </div>
+    
+    
+    <h6 class="url">
+        <a href={{ url_for('nueva_persona', id_viaje=viaje.id) }}>AÑADIR PERSONA</a>
+    </h6>
+    <h6 class="url">
+        <a href={{ url_for('nuevo_gasto', id_viaje=viaje.id) }}>NUEVO GASTO</a>
+    </h6>
+</div>
+
+
+{% endblock %}

@@ -29,8 +29,9 @@ class Datos_gastos(db.Model):
     nombre = db.Column(db.String(150), index=True, unique=False)
     cantidad = db.Column(db.Float, index=True, unique=False)
     persona_paga = db.Column(db.Integer, db.ForeignKey('datos_personas.id'))
+    personas_participan = db.Column(db.String(500), index=True, unique=False)
     id_viaje = db.Column(db.Integer, db.ForeignKey('datos_viajes.id'))
 
     def __repr__(self):
-        return '{}'.format(self.nombre)
+        return '{nombre} | cantidad: {cantidad}€'.format(nombre=self.nombre, cantidad=self.cantidad)
 
