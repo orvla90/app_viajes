@@ -3,13 +3,9 @@
 
 <!-- lista de viajes ya creados -->
 {% for viaje in viajes %}
-<h1>{{ viajes[viaje].nombre }}</h1>
-{% for persona in viajes[viaje].personas %}
-<p>{{ persona }}</p>
+<a href={{ url_for('nueva_persona', id_viaje=viaje.id) }} >
+    <h1>{{ viaje }}</h1>
+</a>
 {% endfor %}
-{% for gasto in viajes[viaje].gastos %}
-<p>{{ gasto }}</p>
-{% endfor %}
-<!-- añadir nuevo viaje -->
-{% endfor %}
+<a href={{ url_for('nuevo_viaje') }}>Nuevo Viaje</a>
 {% endblock %}

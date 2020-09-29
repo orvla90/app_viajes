@@ -8,12 +8,12 @@ class Viaje(FlaskForm):
     nombre_viaje = StringField('Nombre', validators=[DataRequired()])
     submit = SubmitField('Añadir viaje')    
 
-class Personas(FlaskForm):
+class Persona(FlaskForm):
     nombre_persona = StringField('Nombre', validators=[DataRequired()])
     baremo_persona = IntegerField('Baremo', validators=[DataRequired()])
     submit = SubmitField('Añadir persona')
 
-class Gastos(FlaskForm):
+class Gasto(FlaskForm):
     nombre_gasto = StringField('Nombre', validators=[DataRequired()])
     pagado = IntegerField('Pagado', validators=[DataRequired()])
     #queda hacer query para cambiar las personas por los nombres de las personas que estan en este viaje
