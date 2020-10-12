@@ -1,4 +1,4 @@
-# funcion que calcula los movimientos de cada persona de un viaje
+# calcula los movimientos de cada persona de un viaje
 # la lista_deudas es una lista de listas [Persona, balance]
 # siendo balance = pagado - coste viaje
 def calcular_balance(persona):

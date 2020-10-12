@@ -1,16 +1,34 @@
 from flask import Flask, render_template, redirect, url_for, request
-from datos import Datos_viajes, Datos_personas, Datos_gastos
+from models import Datos_viajes, Datos_personas, Datos_gastos
 from app import app, db
 from forms import Viaje, Persona, Gasto
 from sqlalchemy import and_
 from utils import calcular_movimientos, calcular_lista_deudas
+from flask_login import current_user, login_user, logout_user, login_required
 
+
+# index
 @app.route('/')
 def index():
     return(render_template('index.html', viajes=Datos_viajes.query.all()))
 
+# Viajes
 
+# carga lista de viajes
+@app.route('/viaje/<int:id_viaje>')
+@login_required
+def web_viaje(id_viaje):
+    datos_personas = Datos_personas()
+    viaje = Datos_viajes().query.filter_by(id=id_viaje).first()
+    personas = datos_personas.query.filter_by(id_viaje=id_viaje).all()
+    gastos = Datos_gastos.query.filter_by(id_viaje=id_viaje).all()
+    return(render_template('viaje.html', personas=personas, viaje=viaje, gastos=gastos))
+
+
+
+# añade un nuevo viaje
 @app.route('/nuevo_viaje', methods = ['GET', 'POST'])
+@login_required
 def nuevo_viaje():
     viaje = Viaje()
     if viaje.validate_on_submit():
@@ -20,15 +38,11 @@ def nuevo_viaje():
         return(redirect(url_for('index')))
     return(render_template('nuevo_viaje.html', viaje=viaje))
 
-@app.route('/viaje/<int:id_viaje>')
-def web_viaje(id_viaje):
-    datos_personas = Datos_personas()
-    viaje = Datos_viajes().query.filter_by(id=id_viaje).first()
-    personas = datos_personas.query.filter_by(id_viaje=id_viaje).all()
-    gastos = Datos_gastos.query.filter_by(id_viaje=id_viaje).all()
-    return(render_template('viaje.html', personas=personas, viaje=viaje, gastos=gastos))
+# Personas
 
+# Añade una persona nueva
 @app.route('/nueva_persona/<int:id_viaje>', methods = ['GET', 'POST'])
+@login_required
 def nueva_persona(id_viaje):
     persona = Persona()
     if persona.validate_on_submit():
@@ -39,7 +53,18 @@ def nueva_persona(id_viaje):
         return(redirect(url_for('index')))
     return(render_template('nueva_persona.html', persona=persona))
 
+# Gastos
+
+# carga todos los gastos
+@app.route('/gastos/<int:id_viaje>')
+@login_required
+def web_gastos(id_viaje):
+    gastos = Datos_gastos().query.filter_by(id_viaje=id_viaje).all()
+    return(render_template('gastos.html', gastos=gastos))
+
+# Añade un gasto nuevo
 @app.route('/nuevo_gasto/<int:id_viaje>', methods = ['GET', 'POST'])
+@login_required
 def nuevo_gasto(id_viaje):
     if len(Datos_personas().query.filter_by(id_viaje=id_viaje).all()) < 1:
         return(redirect(url_for('web_viaje', id_viaje=id_viaje)))
@@ -70,13 +95,25 @@ def nuevo_gasto(id_viaje):
         return(redirect(url_for('index')))
     return(render_template('nuevo_gasto.html', gasto=gasto, personas=personas))
 
-@app.route('/gastos/<int:id_viaje>')
-def web_gastos(id_viaje):
-    gastos = Datos_gastos().query.filter_by(id_viaje=id_viaje).all()
-    return(render_template('gastos.html', gastos=gastos))
-
+#calcula los pagos que tiene que hacer cada persona
 @app.route('/movimientos/<int:id_viaje>')
+@login_required
 def movimientos(id_viaje):
     personas = Datos_personas().query.filter_by(id_viaje=id_viaje).all()
     lista_deudas = calcular_lista_deudas(personas)
     return(calcular_movimientos(lista_deudas))
+
+# login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+      return(redirect(url_for('index')))
+    #crear Formulario para login
+    return('')
+
+# register
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return(redirect(url_for('index')))
+    # crear Formulario de registro
