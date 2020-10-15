@@ -27,12 +27,12 @@ def web_viaje(id_viaje):
 
 
 # añade un nuevo viaje
-@app.route('/nuevo_viaje', methods = ['GET', 'POST'])
+@app.route('/nuevo_viaje/<int:user_id>', methods = ['GET', 'POST'])
 @login_required
-def nuevo_viaje():
+def nuevo_viaje(user_id):
     viaje = Viaje()
     if viaje.validate_on_submit():
-        nuevo_viaje = Datos_viajes(nombre = viaje.nombre_viaje.data)
+        nuevo_viaje = Datos_viajes(nombre = viaje.nombre_viaje.data, user_id=user_id)
         db.session.add(nuevo_viaje)
         db.session.commit()
         return(redirect(url_for('index')))
@@ -134,5 +134,17 @@ def register():
         new_user.set_password(form.password.data)
         db.session.add(new_user)
         db.session.commit()
-        return(redirect(url_for('index')))
+        return(redirect(url_for('user_area', user_id=new_user.id)))
     return(render_template('register.html', form=form, title='Register'))
+
+# logout
+@app.route('/logout')
+def logout():
+    logout_user()
+    return(redirect(url_for('login')))
+
+# user_area
+@app.route('/user_area/<int:user_id>')
+def user_area(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    return(render_template('user_area.html', user=user))
