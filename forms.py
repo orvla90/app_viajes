@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, SelectMultipleField, SelectField, FloatField
-from wtforms.validators import DataRequired 
+from wtforms import StringField, SubmitField, IntegerField, SelectMultipleField, SelectField, FloatField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Email, EqualTo
 
 
 class Viaje(FlaskForm):
@@ -19,3 +19,16 @@ class Gasto(FlaskForm):
     persona_paga = SelectField('Persona que Paga', coerce=str)
     personas_participan = SelectMultipleField('Personas que Participan', coerce=int)
     submit = SubmitField('Añadir gasto')
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    rememberme = BooleanField('Remember Me')
+    submit = SubmitField('Sign in')
+
+class RegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Register')

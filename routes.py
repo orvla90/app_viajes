@@ -1,11 +1,11 @@
-from flask import Flask, render_template, redirect, url_for, request
-from models import Datos_viajes, Datos_personas, Datos_gastos
+from flask import Flask, render_template, redirect, url_for, request, flash
+from models import Datos_viajes, Datos_personas, Datos_gastos, User
 from app import app, db
-from forms import Viaje, Persona, Gasto
+from forms import Viaje, Persona, Gasto, LoginForm, RegistrationForm
 from sqlalchemy import and_
 from utils import calcular_movimientos, calcular_lista_deudas
 from flask_login import current_user, login_user, logout_user, login_required
-
+from werkzeug.urls import url_parse
 
 # index
 @app.route('/')
@@ -108,8 +108,19 @@ def movimientos(id_viaje):
 def login():
     if current_user.is_authenticated:
       return(redirect(url_for('index')))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username = form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return(redirect(url_for('login')))
+        login_user(user, remember=form.rememberme.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return(redirect(next_page))
     #crear Formulario para login
-    return('')
+    return(render_template('login.html', title='Sign In', form=form))
 
 # register
 @app.route('/register', methods=['GET', 'POST'])
@@ -117,3 +128,11 @@ def register():
     if current_user.is_authenticated:
         return(redirect(url_for('index')))
     # crear Formulario de registro
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        new_user = User(username=form.username.data, email=form.email.data)
+        new_user.set_password(form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+        return(redirect(url_for('index')))
+    return(render_template('register.html', form=form, title='Register'))
