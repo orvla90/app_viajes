@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Contenido de los gastos del viaje -->
+
+<div>
+    <h3>
+        Gastos
+    </h3>
+    <h5>
+        <ul>
+            {% for gasto in gastos %}
+            <li>{{ gasto }}</li>
+            {% endfor %}
+        </ul>
+    </h5>
+</div>
+
+{% endblock %}

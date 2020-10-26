@@ -1,1 +1,22 @@
 /* estilo app viajes */
+html {
+    background-color: #00001f;
+    color: #66ffcc;
+    margin: 0;
+}
+a {
+    text-decoration: none;
+    color: #6fc;
+}
+body {
+    padding: 1rem;
+    margin: 0 auto;
+}
+
+.url {
+    background-color: #00b300;
+    padding: .8rem;
+    border-radius: .6rem;
+    text-align: center;
+    width: fit-content;
+}
