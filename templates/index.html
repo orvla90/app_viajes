@@ -2,11 +2,11 @@
 {% block content %}
 
 <!-- lista de viajes ya creados -->
-{% for viaje in viajes %}
+{% for viaje in range(viajes|length) %}
 
 <div class="contenedor_viajes">
-    <a href={{ url_for('web_viaje', id_viaje=viaje.id) }} >
-        <h2>{{ viaje }}</h2>
+    <a href={{ url_for('web_viaje', id_viaje=viajes[viaje].id ) }} >
+        <h2>{{ viaje + 1 }} | {{ viajes[viaje] }}</h2>
     </a>
 </div>
 

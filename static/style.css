@@ -12,7 +12,19 @@ body {
     padding: 1rem;
     margin: 0 auto;
 }
-
+.main_menu {
+    background-color: #b2faff;
+    display: flex;
+    list-style:none;
+    justify-content: space-between;
+    align-items:center;
+}
+.main_menu li {
+    padding: 10px;
+}
+.main_menu li a {
+    padding: 10px;
+}
 .url {
     background-color: #00b300;
     padding: .8rem;

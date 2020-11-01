@@ -7,14 +7,21 @@ from utils import calcular_movimientos, calcular_lista_deudas
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import url_parse
 
-# index
+# welcome
 @app.route('/')
-def index():
-    return(render_template('index.html', viajes=Datos_viajes.query.all()))
+def welcome():
+    return(render_template('welcome.html'))
+
+# index
+@app.route('/<int:user_id>')
+def index(user_id):
+    return(render_template('index.html', viajes=Datos_viajes.query.filter_by(user_id=user_id).all()))
 
 # Viajes
 
 # carga lista de viajes
+
+
 @app.route('/viaje/<int:id_viaje>')
 @login_required
 def web_viaje(id_viaje):
@@ -24,24 +31,26 @@ def web_viaje(id_viaje):
     gastos = Datos_gastos.query.filter_by(id_viaje=id_viaje).all()
     return(render_template('viaje.html', personas=personas, viaje=viaje, gastos=gastos))
 
-
-
 # añade un nuevo viaje
-@app.route('/nuevo_viaje/<int:user_id>', methods = ['GET', 'POST'])
+
+@app.route('/nuevo_viaje/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def nuevo_viaje(user_id):
     viaje = Viaje()
     if viaje.validate_on_submit():
-        nuevo_viaje = Datos_viajes(nombre = viaje.nombre_viaje.data, user_id=user_id)
+        nuevo_viaje = Datos_viajes(
+            nombre=viaje.nombre_viaje.data, user_id=user_id)
         db.session.add(nuevo_viaje)
         db.session.commit()
-        return(redirect(url_for('index')))
+        return(redirect(url_for('index', user_id=user_id)))
     return(render_template('nuevo_viaje.html', viaje=viaje))
 
 # Personas
 
 # Añade una persona nueva
-@app.route('/nueva_persona/<int:id_viaje>', methods = ['GET', 'POST'])
+
+
+@app.route('/nueva_persona/<int:id_viaje>', methods=['GET', 'POST'])
 @login_required
 def nueva_persona(id_viaje):
     persona = Persona()
@@ -56,6 +65,8 @@ def nueva_persona(id_viaje):
 # Gastos
 
 # carga todos los gastos
+
+
 @app.route('/gastos/<int:id_viaje>')
 @login_required
 def web_gastos(id_viaje):
@@ -63,7 +74,9 @@ def web_gastos(id_viaje):
     return(render_template('gastos.html', gastos=gastos))
 
 # Añade un gasto nuevo
-@app.route('/nuevo_gasto/<int:id_viaje>', methods = ['GET', 'POST'])
+
+
+@app.route('/nuevo_gasto/<int:id_viaje>', methods=['GET', 'POST'])
 @login_required
 def nuevo_gasto(id_viaje):
     if len(Datos_personas().query.filter_by(id_viaje=id_viaje).all()) < 1:
@@ -78,8 +91,9 @@ def nuevo_gasto(id_viaje):
         nombre_gasto = gasto.nombre_gasto.data
         cantidad = gasto.pagado.data
         persona_paga = gasto.persona_paga.data
-        # añade el gasto que ha pagado la persona 
-        Datos_personas().query.filter(and_(Datos_personas.nombre==persona_paga, Datos_personas.id_viaje==id_viaje)).first().cantidad_pagada += cantidad
+        # añade el gasto que ha pagado la persona
+        Datos_personas().query.filter(and_(Datos_personas.nombre == persona_paga,
+                                           Datos_personas.id_viaje == id_viaje)).first().cantidad_pagada += cantidad
         personas_participan = gasto.personas_participan.data
         # añadir la cantida al coste del viaje a cada persona que participa
         baremo_total = 0
@@ -89,13 +103,16 @@ def nuevo_gasto(id_viaje):
             datos_persona = Datos_personas().query.filter_by(id=persona).first()
             datos_persona.coste_viaje += cantidad/baremo_total * datos_persona.baremo
         personas_participan = [str(persona) for persona in personas_participan]
-        nuevo_gasto = Datos_gastos(nombre=nombre_gasto, cantidad=cantidad, persona_paga=persona_paga, personas_participan=' '.join(personas_participan), id_viaje=id_viaje)
+        nuevo_gasto = Datos_gastos(nombre=nombre_gasto, cantidad=cantidad, persona_paga=persona_paga,
+                                   personas_participan=' '.join(personas_participan), id_viaje=id_viaje)
         db.session.add(nuevo_gasto)
         db.session.commit()
         return(redirect(url_for('index')))
     return(render_template('nuevo_gasto.html', gasto=gasto, personas=personas))
 
-#calcula los pagos que tiene que hacer cada persona
+# calcula los pagos que tiene que hacer cada persona
+
+
 @app.route('/movimientos/<int:id_viaje>')
 @login_required
 def movimientos(id_viaje):
@@ -104,25 +121,31 @@ def movimientos(id_viaje):
     return(calcular_movimientos(lista_deudas))
 
 # login
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-      return(redirect(url_for('index')))
+        print('Your number of user is: ')
+        print(current_user.id)
+        return(redirect(url_for('index', user_id=current_user.id)))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username = form.username.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return(redirect(url_for('login')))
         login_user(user, remember=form.rememberme.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('index', user_id=current_user.id)
         return(redirect(next_page))
-    #crear Formulario para login
+    # crear Formulario para login
     return(render_template('login.html', title='Sign In', form=form))
 
 # register
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -138,12 +161,16 @@ def register():
     return(render_template('register.html', form=form, title='Register'))
 
 # logout
+
+
 @app.route('/logout')
 def logout():
     logout_user()
     return(redirect(url_for('login')))
 
 # user_area
+
+
 @app.route('/user_area/<int:user_id>')
 def user_area(user_id):
     user = User.query.filter_by(id=user_id).first()

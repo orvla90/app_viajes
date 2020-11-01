@@ -3,11 +3,19 @@
     <head>
         <!-- codigo base html, menu y pie -->
         <meta title="Viajes | Calcula lo que tiene que pagar cada uno" >
-        <link rel="stylesheet" href="../static/style.css" />
-        <link rel="icon" href="../static/images/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="./static/style.css" />
+        <link rel="icon" href="./static/images/favicon.ico" type="image/x-icon" />
     </head>
     <body>
-        <h1>Viajes</h1>
+        <ul class="main_menu" >
+            <li>
+                <h1>Viajes</h1>
+            </li>
+            <li>
+                <a href="{{ url_for('login') }}" >Login</a>
+                <a href="{{ url_for('logout') }}">logout</a>
+            </li>
+        </ul>
         {% block content %}
         {% endblock %}
     </body>

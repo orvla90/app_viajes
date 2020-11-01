@@ -10,7 +10,7 @@ class Datos_viajes(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id'))
 
     def __repr__(self):
-        return '{id} | {nombre}'.format(id=self.id, nombre=self.nombre)
+        return '{nombre}'.format(nombre=self.nombre)
 
 
 class Datos_personas(db.Model):
